@@ -1,7 +1,9 @@
-from pymcdm.methods import TOPSIS, VIKOR, SPOTIS, PROMETHEE_II
-import mcdm_calculator_helper as mch
 import numpy as np
+
+from pymcdm.methods import TOPSIS, VIKOR, SPOTIS, PROMETHEE_II
+
 from data_processor import static_data as sd
+import mcdm_calculator_helper as mch
 
 
 class McdmCalculator:
