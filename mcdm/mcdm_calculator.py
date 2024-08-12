@@ -59,22 +59,27 @@ def main():
 
     scores_and_rankings_metrics_and_scores = mcdm_calculator.calculate_scores_and_rankings_all_methods()
     scores_metrics_and_scores = scores_and_rankings_metrics_and_scores[0]
-    scores_rankings_and_scores = scores_and_rankings_metrics_and_scores[1]
-    mcdm_calculator.plot_mcdm_results(scores_metrics_and_scores)
-    mcdm_calculator.plot_mcdm_results(scores_rankings_and_scores)
-
-
+    rankings_metrics_and_scores = scores_and_rankings_metrics_and_scores[1]
+    mcdm_calculator.plot_mcdm_results(scores_metrics_and_scores, True)
+    mcdm_calculator.plot_mcdm_results(rankings_metrics_and_scores, False)
 
 
     ### confusion matrix
     evaluated_model_conf_matrix_path = sd.evaluated_model_conf_matrix_path
     data_types = sd.conf_matrix_types
     data_weights = sd.conf_matrix_weights
-    mcdm_calculator_helper_cm = mch.McdmCalculatorHelper(evaluated_model_conf_matrix_path, data_types,
+    mcdm_calculator_helper_conf_matrix = mch.McdmCalculatorHelper(evaluated_model_conf_matrix_path, data_types,
                                                          data_weights, True)
 
-    mcdm_calculator = McdmCalculator(mcdm_calculator_helper_cm)
+    mcdm_calculator = McdmCalculator(mcdm_calculator_helper_conf_matrix)
     mcdm_calculator.calculate_scores_and_rankings_all_methods()
+
+    scores_and_rankings_metrics_and_scores = mcdm_calculator.calculate_scores_and_rankings_all_methods()
+    scores_conf_matrix = scores_and_rankings_metrics_and_scores[0]
+    rankings_conf_matrix = scores_and_rankings_metrics_and_scores[1]
+
+    mcdm_calculator.plot_mcdm_results(scores_conf_matrix, True)
+    mcdm_calculator.plot_mcdm_results(rankings_conf_matrix, False)
 
 
 if __name__ == "__main__":
