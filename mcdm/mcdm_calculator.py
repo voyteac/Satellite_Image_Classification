@@ -10,12 +10,13 @@ class McdmCalculator:
     def __init__(self, mcdm_calculator_helper):
         self.mcdm_calculator_helper = mcdm_calculator_helper
         self.load_all_models_df_only_data = self.mcdm_calculator_helper.drop_model_name_from_df_data()
+        self.model_names = self.mcdm_calculator_helper.get_all_models_names()
 
-    def calculate_rounded_scores_all_methods(self):
+
+    def calculate_scores_and_rankings_all_methods(self):
         data_types = self.mcdm_calculator_helper.get_data_types()
         data_weights = self.mcdm_calculator_helper.get_data_weights()
         normalized_data = self.mcdm_calculator_helper.get_normalized_data()
-        model_names = self.mcdm_calculator_helper.get_all_models_names()
 
         methods = {
             'VIKOR': VIKOR(),
@@ -31,21 +32,17 @@ class McdmCalculator:
             rankings_all_methods[name] = method_function.rank(scores_all_methods[name])
             self.mcdm_calculator_helper.draw_figure(scores_all_methods[name], name)
         rounded_scores_all_methods = {method: np.round(values, 3) for method, values in scores_all_methods.items()}
+        return rounded_scores_all_methods, rankings_all_methods
 
-
-
-        # Print rounded scores
-        print("\nScores (Rounded):")
-        header = "Method".ljust(15) + "\t" + "\t".join(model_names)
-        print(header)
-        for method, values in rounded_scores_all_methods.items():
-            formatted_values = "\t\t\t".join(map(str, values))
-            print(f"{method.ljust(15)}\t{formatted_values}")
-
+    def plot_mcdm_results(self, data_to_be_plotted, plot_scores=True):
         # Print rankings
-        print("\nRankings:")
+        if plot_scores:
+            print("\nScores (Rounded):")
+        else:
+            print("\nRankings:")
+        header = "Method".ljust(15) + "\t" + "\t".join(self.model_names)
         print(header)  # Reuse the header from above
-        for method, values in rankings_all_methods.items():
+        for method, values in data_to_be_plotted.items():
             formatted_values = "\t\t\t".join(map(str, values))
             print(f"{method.ljust(15)}\t{formatted_values}")
 
@@ -58,7 +55,16 @@ def main():
     mcdm_calculator_helper_metrics_score = mch.McdmCalculatorHelper(evaluated_model_scores_metrics_path, data_types,
                                                                     data_weights, False)
     mcdm_calculator = McdmCalculator(mcdm_calculator_helper_metrics_score)
-    mcdm_calculator.calculate_rounded_scores_all_methods()
+    mcdm_calculator.calculate_scores_and_rankings_all_methods()
+
+    scores_and_rankings_metrics_and_scores = mcdm_calculator.calculate_scores_and_rankings_all_methods()
+    scores_metrics_and_scores = scores_and_rankings_metrics_and_scores[0]
+    scores_rankings_and_scores = scores_and_rankings_metrics_and_scores[1]
+    mcdm_calculator.plot_mcdm_results(scores_metrics_and_scores)
+    mcdm_calculator.plot_mcdm_results(scores_rankings_and_scores)
+
+
+
 
     ### confusion matrix
     evaluated_model_conf_matrix_path = sd.evaluated_model_conf_matrix_path
@@ -68,7 +74,7 @@ def main():
                                                          data_weights, True)
 
     mcdm_calculator = McdmCalculator(mcdm_calculator_helper_cm)
-    mcdm_calculator.calculate_rounded_scores_all_methods()
+    mcdm_calculator.calculate_scores_and_rankings_all_methods()
 
 
 if __name__ == "__main__":
